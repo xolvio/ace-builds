@@ -13038,9 +13038,7 @@ var Gutter = function(parentEl) {
             if (rowInfo.text.indexOf(annoText) === -1)
                 rowInfo.text.push(annoText);
 
-            if (annotation.icon) {
-                rowInfo.icon = annotation.icon;
-            }
+            rowInfo.icon = annotation.icon || null;
 
             if (annotation.className) {
                 rowInfo.className = annotation.className;
@@ -13107,12 +13105,14 @@ var Gutter = function(parentEl) {
 
             cell = this.$cells[++index];
             if (!cell) {
-                cell = {element: null, textNode: null, foldWidget: null};
+                cell = {
+                    element: null,
+                    iconNode: null,
+                    textNode: null,
+                    foldWidget: null
+                };
                 cell.element = dom.createElement("div");
                 cell.textNode = document.createTextNode('');
-                if (this.$annotations[row] && this.$annotations[row].icon) {
-                    cell.element.appendChild(this.$annotations[row].icon);
-                }
                 cell.element.appendChild(cell.textNode);
                 this.element.appendChild(cell.element);
                 this.$cells[index] = cell;
@@ -13127,6 +13127,20 @@ var Gutter = function(parentEl) {
                 className += this.$annotations[row].className;
             if (cell.element.className != className)
                 cell.element.className = className;
+
+            if (
+              (!this.$annotations[row] && cell.iconNode) ||
+              (this.$annotations[row] && this.$annotations[row].icon !== cell.iconNode)
+            ) {
+                if (cell.iconNode) {
+                    cell.element.removeChild(cell.iconNode);
+                    cell.iconNode = null;
+                }
+                if (this.$annotations[row] && this.$annotations[row].icon) {
+                    cell.iconNode = this.$annotations[row].icon;
+                    cell.element.appendChild(cell.iconNode);
+                }
+            }
 
             var height = session.getRowLength(row) * config.lineHeight + "px";
             if (height != cell.element.style.height)
