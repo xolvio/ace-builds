@@ -4024,8 +4024,12 @@ define("ace/keyboard/vim",["require","exports","module","ace/range","ace/lib/eve
   };
   this.scrollInfo = function() { return 0; };
   this.scrollIntoView = function(pos, margin) {
-    if (pos)
-      this.ace.renderer.scrollCursorIntoView(toAcePos(pos), null, margin);
+    if (pos) {
+      var renderer = this.ace.renderer;
+      var viewMargin = { "top": 0, "bottom": margin };
+      renderer.scrollCursorIntoView(toAcePos(pos),
+        (renderer.lineHeight * 2) / renderer.$size.scrollerHeight, viewMargin);
+    }
   };
   this.getLine = function(row) { return this.ace.session.getLine(row) };
   this.getRange = function(s, e) {
@@ -4340,7 +4344,7 @@ dom.importCssString(".normal-mode .ace_cursor{\
     if (inp) {
       if (options.value) {
         inp.value = options.value;
-        inp.select();
+        if (options.select !== false) inp.select();
       }
 
       if (options.onInput)
@@ -5454,7 +5458,7 @@ dom.importCssString(".normal-mode .ace_cursor{\
         } else {
           if (vim.visualMode) {
             showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>',
-                onKeyDown: onPromptKeyDown});
+                onKeyDown: onPromptKeyDown, select: false});
           } else {
             showPrompt(cm, { onClose: onPromptClose, prefix: ':',
                 onKeyDown: onPromptKeyDown});
@@ -7440,7 +7444,7 @@ dom.importCssString(".normal-mode .ace_cursor{\
     function dialog(cm, template, shortText, onClose, options) {
       if (cm.openDialog) {
         cm.openDialog(template, onClose, { bottom: true, value: options.value,
-            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp });
+            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp, select: options.select });
       }
       else {
         onClose(prompt(shortText, ''));
@@ -10688,7 +10692,7 @@ var Autocomplete = function() {
     this.blurListener = function(e) {
         var el = document.activeElement;
         var text = this.editor.textInput.getElement()
-        if (el != text && el.parentNode != this.popup.container
+        if (el != text && ( !this.popup || el.parentNode != this.popup.container )
             && el != this.tooltipNode && e.relatedTarget != this.tooltipNode
             && e.relatedTarget != text
         ) {
@@ -10750,7 +10754,6 @@ var Autocomplete = function() {
         "Ctrl-Down|Ctrl-End": function(editor) { editor.completer.goTo("end"); },
 
         "Esc": function(editor) { editor.completer.detach(); },
-        "Space": function(editor) { editor.completer.detach(); editor.insert(" ");},
         "Return": function(editor) { return editor.completer.insertMatch(); },
         "Shift-Return": function(editor) { editor.completer.insertMatch(true); },
         "Tab": function(editor) {
@@ -12067,7 +12070,7 @@ new StatusBar(env.editor, cmdLine.container);
 
 
 var Emmet = require("ace/ext/emmet");
-net.loadScript("https://nightwing.github.io/emmet-core/emmet.js", function() {
+net.loadScript("https://cloud9ide.github.io/emmet-core/emmet.js", function() {
     Emmet.setCore(window.emmet);
     env.editor.setOption("enableEmmet", true);
 });
