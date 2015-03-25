@@ -13038,6 +13038,10 @@ var Gutter = function(parentEl) {
             if (rowInfo.text.indexOf(annoText) === -1)
                 rowInfo.text.push(annoText);
 
+            if (annotation.icon) {
+                rowInfo.icon = annotation.icon;
+            }
+
             if (annotation.className) {
                 rowInfo.className = annotation.className;
             } else {
@@ -13106,6 +13110,9 @@ var Gutter = function(parentEl) {
                 cell = {element: null, textNode: null, foldWidget: null};
                 cell.element = dom.createElement("div");
                 cell.textNode = document.createTextNode('');
+                if (this.$annotations[row] && this.$annotations[row].icon) {
+                    cell.element.appendChild(this.$annotations[row].icon);
+                }
                 cell.element.appendChild(cell.textNode);
                 this.element.appendChild(cell.element);
                 this.$cells[index] = cell;
@@ -13116,7 +13123,7 @@ var Gutter = function(parentEl) {
                 className += breakpoints[row];
             if (decorations[row])
                 className += decorations[row];
-            if (this.$annotations[row])
+            if (this.$annotations[row] && this.$annotations[row].className)
                 className += this.$annotations[row].className;
             if (cell.element.className != className)
                 cell.element.className = className;
