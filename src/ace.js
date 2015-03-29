@@ -13133,7 +13133,10 @@ var Gutter = function(parentEl) {
               (this.$annotations[row] && this.$annotations[row].icon !== cell.iconNode)
             ) {
                 if (cell.iconNode) {
-                    cell.element.removeChild(cell.iconNode);
+                    try {
+                        cell.element.removeChild(cell.iconNode);
+                    } catch (error) {
+                    }
                     cell.iconNode = null;
                 }
                 if (this.$annotations[row] && this.$annotations[row].icon) {
